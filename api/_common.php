@@ -1,6 +1,16 @@
 <?php
 declare(strict_types=1);
 
+// DEBUG TEMPORARIO: mostra o erro real em vez de tela em branco. Remover depois de diagnosticar.
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
+set_exception_handler(function ($e) {
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => 'DEBUG: ' . $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+    exit;
+});
+
 require_once __DIR__ . '/../config.php';
 
 header('Content-Type: application/json; charset=utf-8');
