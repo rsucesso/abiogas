@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>13º Fórum do Biogás — Coletor de Leads</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div id="app">
+
+  <section id="screen-loading" class="screen">
+    <div class="center-col">
+      <p>Carregando...</p>
+    </div>
+  </section>
+
+  <section id="screen-onboard-scan" class="screen" hidden>
+    <div class="brand">
+      <img src="assets/logo.png" alt="13º Fórum do Biogás" class="logo" onerror="this.style.display='none'">
+    </div>
+    <div class="center-col">
+      <div class="own-qr-warning">
+        <span class="own-qr-warning-icon">⚠️</span>
+        <span>Escaneie primeiro o <strong>SEU PRÓPRIO</strong> crachá.<br>Não capture o crachá de outra pessoa agora.</span>
+      </div>
+      <div class="camera-wrap">
+        <video id="onboard-video" playsinline muted></video>
+        <div class="scan-frame"></div>
+      </div>
+      <canvas id="onboard-canvas" hidden></canvas>
+      <p class="instruction">Passo 1 de 2 — identifique-se</p>
+      <p class="error-text" id="onboard-error"></p>
+    </div>
+  </section>
+
+  <section id="screen-onboard-profile" class="screen" hidden>
+    <div class="brand">
+      <img src="assets/logo.png" alt="13º Fórum do Biogás" class="logo" onerror="this.style.display='none'">
+      <p>Coletor de Leads · Passo 2 de 2 — seus dados</p>
+    </div>
+    <div class="center-col">
+      <span class="qr-chip" id="onboard-qr-chip"></span>
+      <form id="profile-form" style="width:100%; max-width:360px;">
+        <div class="field">
+          <label for="input-name">Seu nome</label>
+          <input id="input-name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="input-company">Sua empresa</label>
+          <input id="input-company" type="text" autocomplete="organization" required>
+        </div>
+        <p class="error-text" id="profile-error"></p>
+        <button id="btn-start-capturing" type="submit" class="btn">Começar a capturar</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="screen-dashboard" class="screen" hidden>
+    <img src="assets/logo.png" alt="13º Fórum do Biogás" class="logo logo-small" onerror="this.style.display='none'">
+    <div class="dashboard-header">
+      <div class="who">
+        Capturando como
+        <strong id="dash-who-name"></strong>
+        <span id="dash-who-company"></span>
+      </div>
+      <button id="btn-reset-profile" class="gear-link" type="button" style="position:static;">trocar perfil</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card unique">
+        <div class="value" id="stat-unique">0</div>
+        <div class="label">Leads únicos</div>
+      </div>
+      <div class="stat-card repeated">
+        <div class="value" id="stat-repeated">0</div>
+        <div class="label">Repetidos</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Capturas por dia do evento</h3>
+      <div class="chart" id="chart-bars"></div>
+      <div class="chart-legend">
+        <span><span class="dot unique"></span> Únicos</span>
+        <span><span class="dot repeated"></span> Repetidos</span>
+      </div>
+    </div>
+
+    <div class="capture-fab-wrap">
+      <button id="btn-open-scan" class="capture-fab" type="button" aria-label="Capturar novo lead">
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="7" height="7" rx="1" stroke="white" stroke-width="2"/>
+          <rect x="14" y="3" width="7" height="7" rx="1" stroke="white" stroke-width="2"/>
+          <rect x="3" y="14" width="7" height="7" rx="1" stroke="white" stroke-width="2"/>
+          <rect x="5.5" y="5.5" width="2" height="2" fill="white"/>
+          <rect x="16.5" y="5.5" width="2" height="2" fill="white"/>
+          <rect x="5.5" y="16.5" width="2" height="2" fill="white"/>
+          <rect x="14" y="14" width="3" height="3" fill="white"/>
+          <rect x="19" y="14" width="2" height="2" fill="white"/>
+          <rect x="14" y="19" width="2" height="2" fill="white"/>
+          <rect x="18" y="18" width="3" height="3" fill="white"/>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <section id="screen-scan" class="screen" hidden style="padding:0; position:relative;">
+    <button id="btn-close-scan" class="scan-close" type="button" aria-label="Fechar">✕</button>
+    <div class="center-col" style="padding:24px 20px;">
+      <div class="camera-wrap">
+        <video id="scan-video" playsinline muted></video>
+        <div class="scan-frame"></div>
+      </div>
+      <canvas id="scan-canvas" hidden></canvas>
+      <p class="instruction">Aponte a câmera para o QR code do lead.</p>
+      <p class="error-text" id="scan-error"></p>
+      <div id="last-capture-chip" class="last-capture-chip" hidden>
+        <span class="last-capture-label">Capturado agora</span>
+        <span class="last-capture-value" id="last-capture-value"></span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer id="app-footer">
+  <span>powered by</span>
+  <img src="assets/logo-viex.png" alt="VIEX Americas" onerror="this.style.display='none'">
+</footer>
+
+<div id="flash-overlay"><span class="icon"></span></div>
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+# Nunca versionar o config real (contém senha do banco e chave de admin).
+# Use config.example.php como modelo.
+config.php
+
+# Lixo comum de SO/editor
+.DS_Store
+Thumbs.db
+*.log
