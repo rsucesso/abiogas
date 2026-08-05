@@ -25,20 +25,29 @@
       <h1 class="welcome-title">Boas-vindas!</h1>
       <p>Este é o sistema de captura de leads do <strong>13º Fórum do Biogás</strong>.</p>
 
-      <label class="check-row">
-        <input type="checkbox" id="chk-welcome-1" class="welcome-check">
-        <span>Os leads capturados e os dados de contato serão enviados ao patrocinador responsável após o evento, pela organização. <strong>Concordo.</strong></span>
-      </label>
-      <label class="check-row">
-        <input type="checkbox" id="chk-welcome-2" class="welcome-check">
-        <span>Este serviço é exclusivo para patrocinadores. <strong>Concordo.</strong></span>
-      </label>
-      <label class="check-row">
-        <input type="checkbox" id="chk-welcome-3" class="welcome-check">
-        <span>O primeiro crachá a ser escaneado deve ser o <strong>seu próprio</strong>. <strong>Entendi.</strong></span>
-      </label>
+      <div class="check-row">
+        <span>Os leads capturados e os dados de contato serão enviados ao patrocinador responsável após o evento, pela organização.</span>
+        <label class="check-agree">
+          <input type="checkbox" id="chk-welcome-1" class="welcome-check">
+          <strong>Concordo.</strong>
+        </label>
+      </div>
+      <div class="check-row">
+        <span>Este serviço é exclusivo para patrocinadores.</span>
+        <label class="check-agree">
+          <input type="checkbox" id="chk-welcome-2" class="welcome-check">
+          <strong>Concordo.</strong>
+        </label>
+      </div>
+      <div class="check-row">
+        <span>O primeiro crachá a ser escaneado deve ser o <strong>seu próprio</strong>.</span>
+        <label class="check-agree">
+          <input type="checkbox" id="chk-welcome-3" class="welcome-check">
+          <strong>Entendi.</strong>
+        </label>
+      </div>
 
-      <button id="btn-welcome-continue" type="button" class="btn" hidden>Escanear o SEU crachá</button>
+      <button id="btn-welcome-continue" type="button" class="btn" disabled>Escanear o SEU crachá</button>
     </div>
   </section>
 

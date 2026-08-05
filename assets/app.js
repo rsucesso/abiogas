@@ -225,7 +225,7 @@
   // ---------- Welcome screen ----------
   function checkWelcomeReady() {
     const ready = el('chk-welcome-1').checked && el('chk-welcome-2').checked && el('chk-welcome-3').checked;
-    el('btn-welcome-continue').hidden = !ready;
+    el('btn-welcome-continue').disabled = !ready;
   }
 
   async function submitProfile(ev) {
