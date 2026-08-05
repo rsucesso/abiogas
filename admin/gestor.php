@@ -141,13 +141,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'uploa
         if (count($allRows) < 1) {
             $importError = 'Nao foi possivel ler o arquivo enviado.';
         } else {
-            $header = array_shift($allRows);
+            // O export do Sympla costuma ter algumas linhas de metadados (titulo do
+            // evento, data, local) antes da linha real de cabecalho. Procura a primeira
+            // linha que pareca um cabecalho de verdade (contem "nome" e "email").
+            $headerIdx = null;
+            foreach ($allRows as $idx => $row) {
+                $norm = array_map('normalize_header', $row);
+                $hasNome = detect_column($norm, ['nome'], ['sobrenome']) !== null;
+                $hasEmail = detect_column($norm, ['email']) !== null;
+                if ($hasNome && $hasEmail) { $headerIdx = $idx; break; }
+            }
+
+            if ($headerIdx === null) {
+                $importError = 'Nao encontrei uma linha de cabecalho com colunas de nome e email no arquivo.';
+                $header = [];
+            } else {
+                $header = $allRows[$headerIdx];
+                $allRows = array_slice($allRows, $headerIdx + 1);
+            }
             $headersNorm = array_map('normalize_header', $header);
 
-            $colCodigo = detect_column($headersNorm, ['codigo'], []);
+            $colCodigo = detect_column($headersNorm, ['codigo'], [])
+                ?? detect_column($headersNorm, ['ingresso'], [])
+                ?? detect_column($headersNorm, ['pedido'], []);
             $colNome = detect_column($headersNorm, ['nome'], ['sobrenome']);
             $colSobrenome = detect_column($headersNorm, ['sobrenome']);
-            $colEmpresa = detect_column($headersNorm, ['empresa']);
+            $colEmpresa = detect_column($headersNorm, ['empresa']) ?? detect_column($headersNorm, ['instituicao']);
             $colCargo = detect_column($headersNorm, ['cargo']);
             $colTelefone = detect_column($headersNorm, ['telefone']) ?? detect_column($headersNorm, ['celular']) ?? detect_column($headersNorm, ['fone']);
             $colEmail = detect_column($headersNorm, ['email']) ?? detect_column($headersNorm, ['e-mail']);
@@ -162,8 +181,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'uploa
                 'email' => $colEmail !== null ? $header[$colEmail] : null,
             ];
 
-            if ($colCodigo === null) {
-                $importError = 'Nao encontrei uma coluna de codigo no arquivo. Verifique se existe uma coluna com "codigo" no nome (ex: "Codigo do ingresso").';
+            if ($headerIdx === null) {
+                // erro ja definido acima
+            } elseif ($colCodigo === null) {
+                $importError = 'Nao encontrei uma coluna de codigo/ingresso/pedido no arquivo.';
             } else {
                 $upsert = $pdo->prepare(
                     'INSERT INTO sympla_inscritos (codigo, nome, sobrenome, empresa, cargo, telefone, email)
