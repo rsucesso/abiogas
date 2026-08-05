@@ -197,7 +197,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'uploa
                 $count = 0;
                 foreach ($allRows as $row) {
                     if ($row === null || $row === [null]) continue;
-                    $codigo = trim((string)($row[$colCodigo] ?? ''));
+                    // O QR do crache traz o codigo sem os hifens que o Sympla usa na exportacao
+                    // (ex: planilha "UKDF-BJ-G2FD" -> QR "UKDF BJ G2FD" sem separadores).
+                    $codigo = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', (string)($row[$colCodigo] ?? '')));
                     if ($codigo === '') continue;
                     $upsert->execute([
                         $codigo,
