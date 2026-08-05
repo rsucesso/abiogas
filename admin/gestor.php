@@ -291,6 +291,7 @@ function h(?string $s): string {
         <tr>
           <th>Capturado em</th>
           <th>Dia</th>
+          <th>Empresa (Capturador)</th>
           <th>Nome (Sympla)</th>
           <th>Empresa (Sympla)</th>
           <th>Cargo</th>
@@ -307,6 +308,7 @@ function h(?string $s): string {
         <tr>
           <td><?= h($r['captured_at']) ?></td>
           <td><?= h($r['event_day']) ?></td>
+          <td><?= h($r['capturador_empresa']) ?></td>
           <td><?= $r['sympla_nome'] !== null ? h($r['sympla_nome'] . ' ' . $r['sympla_sobrenome']) : '<span class="dim">' . h($r['qr_code_capturado']) . '</span>' ?></td>
           <td><?= h($r['sympla_empresa']) ?></td>
           <td><?= h($r['sympla_cargo']) ?></td>
