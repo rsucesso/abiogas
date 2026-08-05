@@ -209,12 +209,22 @@
   async function beginOnboardScan() {
     showScreen('onboardScan');
     el('onboard-error').textContent = '';
+    el('onboard-confirm-box').hidden = true;
+    el('onboard-warning').hidden = false;
+    el('onboard-instruction').hidden = false;
+    el('onboard-canvas').hidden = true;
+    el('onboard-video').hidden = false;
     try {
       await startCamera(el('onboard-video'));
       decodeLoop(el('onboard-video'), el('onboard-canvas'), (value) => {
         state.cooldownUntil = Date.now() + SCAN_COOLDOWN_MS;
         state.ownQr = value;
+        // Congela a imagem: o canvas ja tem o ultimo frame desenhado pelo decodeLoop.
+        el('onboard-video').hidden = true;
+        el('onboard-canvas').hidden = false;
         stopCamera();
+        el('onboard-warning').hidden = true;
+        el('onboard-instruction').hidden = true;
         el('onboard-confirm-box').hidden = false;
       });
     } catch (e) {

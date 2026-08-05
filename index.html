@@ -55,17 +55,17 @@
     <div class="brand">
       <img src="assets/logo.png" alt="13º Fórum do Biogás" class="logo" onerror="this.style.display='none'">
     </div>
-    <div class="center-col">
-      <div class="own-qr-warning">
+    <div class="center-col scan-col">
+      <div class="own-qr-warning" id="onboard-warning">
         <span class="own-qr-warning-icon">⚠️</span>
         <span>Escaneie primeiro o <strong>SEU PRÓPRIO</strong> crachá.<br>Não capture o crachá de outra pessoa agora.</span>
       </div>
       <div class="camera-wrap">
         <video id="onboard-video" playsinline muted></video>
+        <canvas id="onboard-canvas" hidden></canvas>
         <div class="scan-frame"></div>
       </div>
-      <canvas id="onboard-canvas" hidden></canvas>
-      <p class="instruction">Passo 1 de 2 — identifique-se</p>
+      <p class="instruction" id="onboard-instruction">Passo 1 de 2 — identifique-se</p>
       <p class="error-text" id="onboard-error"></p>
 
       <div id="onboard-confirm-box" class="onboard-confirm-box" hidden>
