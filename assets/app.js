@@ -18,8 +18,8 @@
   const el = (id) => document.getElementById(id);
   const screens = {
     loading: el('screen-loading'),
+    welcome: el('screen-welcome'),
     onboardScan: el('screen-onboard-scan'),
-    onboardConfirm: el('screen-onboard-confirm'),
     onboardProfile: el('screen-onboard-profile'),
     dashboard: el('screen-dashboard'),
     scan: el('screen-scan'),
@@ -213,14 +213,19 @@
       await startCamera(el('onboard-video'));
       decodeLoop(el('onboard-video'), el('onboard-canvas'), (value) => {
         state.cooldownUntil = Date.now() + SCAN_COOLDOWN_MS;
-        stopCamera();
         state.ownQr = value;
-        el('onboard-qr-chip').textContent = value;
-        showScreen('onboardConfirm');
+        stopCamera();
+        el('onboard-confirm-box').hidden = false;
       });
     } catch (e) {
       el('onboard-error').textContent = 'Nao foi possivel acessar a camera. Verifique as permissoes do navegador.';
     }
+  }
+
+  // ---------- Welcome screen ----------
+  function checkWelcomeReady() {
+    const ready = el('chk-welcome-1').checked && el('chk-welcome-2').checked && el('chk-welcome-3').checked;
+    el('btn-welcome-continue').hidden = !ready;
   }
 
   async function submitProfile(ev) {
@@ -420,7 +425,7 @@
         clearSession();
       }
     }
-    beginOnboardScan();
+    showScreen('welcome');
   }
 
   function resetProfile() {
@@ -429,13 +434,27 @@
     Object.assign(state, {
       sessionToken: null, capturadorId: null, name: null, company: null, ownQr: null,
     });
-    beginOnboardScan();
+    el('chk-welcome-1').checked = false;
+    el('chk-welcome-2').checked = false;
+    el('chk-welcome-3').checked = false;
+    checkWelcomeReady();
+    showScreen('welcome');
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     el('btn-start-capturing').closest('form').addEventListener('submit', submitProfile);
-    el('btn-confirm-own-yes').addEventListener('click', () => showScreen('onboardProfile'));
-    el('btn-confirm-own-no').addEventListener('click', beginOnboardScan);
+    el('chk-welcome-1').addEventListener('change', checkWelcomeReady);
+    el('chk-welcome-2').addEventListener('change', checkWelcomeReady);
+    el('chk-welcome-3').addEventListener('change', checkWelcomeReady);
+    el('btn-welcome-continue').addEventListener('click', beginOnboardScan);
+    el('btn-confirm-own-yes').addEventListener('click', () => {
+      el('onboard-confirm-box').hidden = true;
+      showScreen('onboardProfile');
+    });
+    el('btn-confirm-own-no').addEventListener('click', () => {
+      el('onboard-confirm-box').hidden = true;
+      beginOnboardScan();
+    });
     el('btn-open-scan').addEventListener('click', beginCapture);
     el('btn-close-scan').addEventListener('click', closeCapture);
     el('btn-reset-profile').addEventListener('click', resetProfile);
@@ -446,7 +465,7 @@
         stopCamera();
         return;
       }
-      if (!screens.onboardScan.hidden) beginOnboardScan();
+      if (!screens.onboardScan.hidden && el('onboard-confirm-box').hidden) beginOnboardScan();
       else if (!screens.scan.hidden) beginCapture();
     });
     boot();

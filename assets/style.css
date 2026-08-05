@@ -472,6 +472,47 @@ html, body {
   display: none;
 }
 
+.welcome-col {
+  align-items: stretch;
+  text-align: left;
+  max-width: 420px;
+  margin: 0 auto;
+  gap: 14px;
+}
+.welcome-title {
+  text-align: center;
+  font-size: 24px;
+  margin: 0;
+}
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--bg-elevated);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.check-row input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.onboard-confirm-box {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btn-confirm-yes { background: var(--success); }
+.btn-confirm-no { background: var(--danger); }
+
 .sponsor-notice {
   width: 100%;
   max-width: 360px;

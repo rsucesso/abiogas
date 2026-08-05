@@ -17,6 +17,31 @@
     </div>
   </section>
 
+  <section id="screen-welcome" class="screen" hidden>
+    <div class="brand">
+      <img src="assets/logo.png" alt="13º Fórum do Biogás" class="logo" onerror="this.style.display='none'">
+    </div>
+    <div class="center-col welcome-col">
+      <h1 class="welcome-title">Boas-vindas!</h1>
+      <p>Este é o sistema de captura de leads do <strong>13º Fórum do Biogás</strong>.</p>
+
+      <label class="check-row">
+        <input type="checkbox" id="chk-welcome-1" class="welcome-check">
+        <span>Os leads capturados e os dados de contato serão enviados ao patrocinador responsável após o evento, pela organização. <strong>Concordo.</strong></span>
+      </label>
+      <label class="check-row">
+        <input type="checkbox" id="chk-welcome-2" class="welcome-check">
+        <span>Este serviço é exclusivo para patrocinadores. <strong>Concordo.</strong></span>
+      </label>
+      <label class="check-row">
+        <input type="checkbox" id="chk-welcome-3" class="welcome-check">
+        <span>O primeiro crachá a ser escaneado deve ser o <strong>seu próprio</strong>. <strong>Entendi.</strong></span>
+      </label>
+
+      <button id="btn-welcome-continue" type="button" class="btn" hidden>Escanear o SEU crachá</button>
+    </div>
+  </section>
+
   <section id="screen-onboard-scan" class="screen" hidden>
     <div class="brand">
       <img src="assets/logo.png" alt="13º Fórum do Biogás" class="logo" onerror="this.style.display='none'">
@@ -33,19 +58,12 @@
       <canvas id="onboard-canvas" hidden></canvas>
       <p class="instruction">Passo 1 de 2 — identifique-se</p>
       <p class="error-text" id="onboard-error"></p>
-    </div>
-  </section>
 
-  <section id="screen-onboard-confirm" class="screen" hidden>
-    <div class="brand">
-      <img src="assets/logo.png" alt="13º Fórum do Biogás" class="logo" onerror="this.style.display='none'">
-    </div>
-    <div class="center-col">
-      <p class="instruction">Confira: este é o crachá que você acabou de escanear.</p>
-      <span class="qr-chip" id="onboard-qr-chip"></span>
-      <p class="instruction"><strong>Este crachá é seu?</strong></p>
-      <button id="btn-confirm-own-yes" type="button" class="btn">Sim, é o meu crachá</button>
-      <button id="btn-confirm-own-no" type="button" class="btn secondary">Não, escanear de novo</button>
+      <div id="onboard-confirm-box" class="onboard-confirm-box" hidden>
+        <p class="instruction"><strong>Este é o seu crachá?</strong></p>
+        <button id="btn-confirm-own-yes" type="button" class="btn btn-confirm-yes">Sim, é o meu crachá</button>
+        <button id="btn-confirm-own-no" type="button" class="btn btn-confirm-no">Não, escanear de novo</button>
+      </div>
     </div>
   </section>
 
