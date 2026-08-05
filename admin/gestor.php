@@ -33,32 +33,115 @@ function detect_column(array $headersNorm, array $mustContain, array $mustNotCon
     return null;
 }
 
+function xlsx_col_to_index(string $ref): int {
+    preg_match('/^([A-Z]+)/', $ref, $m);
+    $letters = $m[1] ?? 'A';
+    $idx = 0;
+    for ($i = 0; $i < strlen($letters); $i++) {
+        $idx = $idx * 26 + (ord($letters[$i]) - ord('A') + 1);
+    }
+    return $idx - 1;
+}
+
+// Le um .xlsx sem depender de bibliotecas externas (so ZipArchive + SimpleXML, ja inclusos no PHP).
+function read_xlsx_rows(string $path): array {
+    $zip = new ZipArchive();
+    if ($zip->open($path) !== true) return [];
+
+    $sharedStrings = [];
+    $ssXml = $zip->getFromName('xl/sharedStrings.xml');
+    if ($ssXml !== false) {
+        $ss = @simplexml_load_string($ssXml);
+        if ($ss !== false) {
+            foreach ($ss->si as $si) {
+                if (isset($si->t)) {
+                    $sharedStrings[] = (string)$si->t;
+                } else {
+                    $text = '';
+                    foreach ($si->r as $r) { $text .= (string)$r->t; }
+                    $sharedStrings[] = $text;
+                }
+            }
+        }
+    }
+
+    $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
+    if ($sheetXml === false) {
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $name = $zip->getNameIndex($i);
+            if ($name !== false && preg_match('#^xl/worksheets/sheet\d+\.xml$#', $name)) {
+                $sheetXml = $zip->getFromName($name);
+                break;
+            }
+        }
+    }
+    $zip->close();
+    if ($sheetXml === false) return [];
+
+    $xml = @simplexml_load_string($sheetXml);
+    if ($xml === false) return [];
+
+    $rows = [];
+    foreach ($xml->sheetData->row as $row) {
+        $rowData = [];
+        foreach ($row->c as $c) {
+            $ref = (string)$c['r'];
+            $colIdx = $ref !== '' ? xlsx_col_to_index($ref) : count($rowData);
+            $type = (string)$c['t'];
+            if ($type === 's') {
+                $value = $sharedStrings[(int)$c->v] ?? '';
+            } elseif ($type === 'inlineStr') {
+                $value = (string)($c->is->t ?? '');
+            } else {
+                $value = (string)$c->v;
+            }
+            $rowData[$colIdx] = $value;
+        }
+        if ($rowData) {
+            $max = max(array_keys($rowData));
+            $ordered = [];
+            for ($i = 0; $i <= $max; $i++) { $ordered[] = $rowData[$i] ?? ''; }
+            $rows[] = $ordered;
+        } else {
+            $rows[] = [];
+        }
+    }
+    return $rows;
+}
+
 $importMessage = '';
 $importError = '';
 $detectedMap = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'upload_sympla') {
-    if (!isset($_FILES['csv']) || $_FILES['csv']['error'] !== UPLOAD_ERR_OK) {
+    if (!isset($_FILES['planilha']) || $_FILES['planilha']['error'] !== UPLOAD_ERR_OK) {
         $importError = 'Nenhum arquivo enviado ou erro no upload.';
     } else {
-        $path = $_FILES['csv']['tmp_name'];
-        $raw = file_get_contents($path);
-        // Sympla costuma exportar em UTF-8 ou Windows-1252; normaliza para UTF-8.
-        if ($raw !== false && !mb_check_encoding($raw, 'UTF-8')) {
-            $raw = mb_convert_encoding($raw, 'UTF-8', 'Windows-1252');
-        }
-        $tmp = tmpfile();
-        fwrite($tmp, $raw ?? '');
-        rewind($tmp);
+        $path = $_FILES['planilha']['tmp_name'];
+        $origName = (string)$_FILES['planilha']['name'];
+        $isXlsx = str_ends_with(strtolower($origName), '.xlsx');
 
-        $firstLine = fgets($tmp);
-        rewind($tmp);
-        $delimiter = (substr_count((string)$firstLine, ';') > substr_count((string)$firstLine, ',')) ? ';' : ',';
-
-        $header = fgetcsv($tmp, 0, $delimiter);
-        if ($header === false || $header === null) {
-            $importError = 'Nao foi possivel ler o cabecalho do CSV.';
+        $allRows = [];
+        if ($isXlsx) {
+            $allRows = read_xlsx_rows($path);
         } else {
+            $raw = file_get_contents($path);
+            // Sympla costuma exportar em UTF-8 ou Windows-1252; normaliza para UTF-8.
+            if ($raw !== false && !mb_check_encoding($raw, 'UTF-8')) {
+                $raw = mb_convert_encoding($raw, 'UTF-8', 'Windows-1252');
+            }
+            $firstLine = strtok((string)$raw, "\n");
+            $delimiter = (substr_count((string)$firstLine, ';') > substr_count((string)$firstLine, ',')) ? ';' : ',';
+            $allRows = array_map(
+                fn($line) => str_getcsv($line, $delimiter),
+                preg_split('/\r\n|\r|\n/', trim((string)$raw))
+            );
+        }
+
+        if (count($allRows) < 1) {
+            $importError = 'Nao foi possivel ler o arquivo enviado.';
+        } else {
+            $header = array_shift($allRows);
             $headersNorm = array_map('normalize_header', $header);
 
             $colCodigo = detect_column($headersNorm, ['codigo'], []);
@@ -80,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'uploa
             ];
 
             if ($colCodigo === null) {
-                $importError = 'Nao encontrei uma coluna de codigo no CSV. Verifique se existe uma coluna com "codigo" no nome (ex: "Codigo do ingresso").';
+                $importError = 'Nao encontrei uma coluna de codigo no arquivo. Verifique se existe uma coluna com "codigo" no nome (ex: "Codigo do ingresso").';
             } else {
                 $upsert = $pdo->prepare(
                     'INSERT INTO sympla_inscritos (codigo, nome, sobrenome, empresa, cargo, telefone, email)
@@ -91,7 +174,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'uploa
                 );
 
                 $count = 0;
-                while (($row = fgetcsv($tmp, 0, $delimiter)) !== false) {
+                foreach ($allRows as $row) {
+                    if ($row === null || $row === [null]) continue;
                     $codigo = trim((string)($row[$colCodigo] ?? ''));
                     if ($codigo === '') continue;
                     $upsert->execute([
@@ -108,7 +192,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'uploa
                 $importMessage = "Importado com sucesso: $count inscritos.";
             }
         }
-        fclose($tmp);
     }
 }
 
@@ -160,11 +243,11 @@ function h(?string $s): string {
   <p class="sub">Leads capturados: <?= count($rows) ?> · Com correspondência no Sympla: <?= $totalMatched ?></p>
 
   <div class="card">
-    <h2>Subir lista de inscritos do Sympla</h2>
+    <h2>Subir lista de inscritos do Sympla (.xlsx ou .csv)</h2>
     <form method="post" enctype="multipart/form-data">
       <input type="hidden" name="action" value="upload_sympla">
       <input type="hidden" name="key" value="<?= h($key) ?>">
-      <input type="file" name="csv" accept=".csv" required><br>
+      <input type="file" name="planilha" accept=".csv,.xlsx" required><br>
       <button type="submit">Subir e atualizar base</button>
     </form>
     <?php if ($importMessage): ?><p class="msg-ok"><?= h($importMessage) ?></p><?php endif; ?>
