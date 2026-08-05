@@ -531,6 +531,9 @@ html, body {
 .btn-confirm-yes { background: var(--success); }
 .btn-confirm-no { background: var(--danger); }
 
+#screen-onboard-scan {
+  padding-top: 12px;
+}
 .scan-col {
   gap: 10px;
 }
