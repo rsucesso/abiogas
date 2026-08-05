@@ -526,16 +526,24 @@ html, body {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+.onboard-confirm-box .instruction {
+  margin-bottom: 2px;
+}
+.onboard-confirm-actions {
+  display: flex;
   gap: 8px;
+}
+.onboard-confirm-actions .btn {
+  flex: 1;
+  max-width: none;
 }
 .btn-confirm-yes { background: var(--success); }
 .btn-confirm-no { background: var(--danger); }
 
-#screen-onboard-scan {
-  padding-top: 12px;
-}
 .scan-col {
-  gap: 10px;
+  gap: 6px;
 }
 .scan-col .own-qr-warning {
   padding: 8px 12px;

@@ -52,6 +52,9 @@
   </section>
 
   <section id="screen-onboard-scan" class="screen" hidden>
+    <div class="brand">
+      <img src="assets/logo.png" alt="13º Fórum do Biogás" class="logo" onerror="this.style.display='none'">
+    </div>
     <div class="center-col scan-col">
       <div class="own-qr-warning" id="onboard-warning">
         <span class="own-qr-warning-icon">⚠️</span>
@@ -67,8 +70,10 @@
 
       <div id="onboard-confirm-box" class="onboard-confirm-box" hidden>
         <p class="instruction"><strong>Este é o seu crachá?</strong></p>
-        <button id="btn-confirm-own-yes" type="button" class="btn btn-confirm-yes">Sim, é o meu crachá</button>
-        <button id="btn-confirm-own-no" type="button" class="btn btn-confirm-no">Não, escanear de novo</button>
+        <div class="onboard-confirm-actions">
+          <button id="btn-confirm-own-yes" type="button" class="btn btn-confirm-yes">Sim, é o meu</button>
+          <button id="btn-confirm-own-no" type="button" class="btn btn-confirm-no">Não, de novo</button>
+        </div>
       </div>
     </div>
   </section>
