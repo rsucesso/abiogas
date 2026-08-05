@@ -433,6 +433,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     el('btn-start-capturing').closest('form').addEventListener('submit', submitProfile);
+    el('btn-rescan-own').addEventListener('click', beginOnboardScan);
     el('btn-open-scan').addEventListener('click', beginCapture);
     el('btn-close-scan').addEventListener('click', closeCapture);
     el('btn-reset-profile').addEventListener('click', resetProfile);

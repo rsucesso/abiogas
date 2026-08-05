@@ -472,6 +472,17 @@ html, body {
   display: none;
 }
 
+.rescan-link {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  text-decoration: underline;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  margin: -4px 0 4px;
+}
+
 .sponsor-notice {
   width: 100%;
   max-width: 360px;
