@@ -52,6 +52,11 @@
           <label for="input-company">Sua empresa</label>
           <input id="input-company" type="text" autocomplete="organization" required>
         </div>
+        <div class="field">
+          <label for="input-email">Seu email</label>
+          <input id="input-email" type="email" autocomplete="email" required>
+        </div>
+        <p class="sponsor-notice">Os leads que você capturar serão enviados ao patrocinador responsável após o evento.</p>
         <p class="error-text" id="profile-error"></p>
         <button id="btn-start-capturing" type="submit" class="btn">Começar a capturar</button>
       </form>
@@ -120,6 +125,18 @@
       <div id="last-capture-chip" class="last-capture-chip" hidden>
         <span class="last-capture-label">Capturado agora</span>
         <span class="last-capture-value" id="last-capture-value"></span>
+      </div>
+    </div>
+
+    <div id="tag-sheet" class="tag-sheet" hidden>
+      <div class="tag-sheet-inner">
+        <p class="tag-sheet-title">Marcar este lead (opcional)</p>
+        <div id="tag-chips" class="tag-chips"></div>
+        <textarea id="tag-notes" class="tag-notes" placeholder="Observação (opcional)" rows="2" maxlength="500"></textarea>
+        <div class="tag-sheet-actions">
+          <button id="btn-tag-skip" type="button" class="btn secondary">Pular</button>
+          <button id="btn-tag-save" type="button" class="btn">Salvar</button>
+        </div>
       </div>
     </div>
   </section>

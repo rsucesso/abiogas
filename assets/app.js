@@ -5,6 +5,16 @@
   const STORAGE_KEY = 'lc_session_v1';
   const SCAN_COOLDOWN_MS = 1800;
 
+  const TAGS = [
+    { code: 'quente', label: '🔥 Quente' },
+    { code: 'morno', label: '🙂 Morno' },
+    { code: 'frio', label: '❄️ Frio / sem interesse' },
+    { code: 'cliente', label: '💰 Já é cliente' },
+    { code: 'parceiro', label: '🤝 Parceiro em potencial' },
+    { code: 'followup', label: '📞 Follow-up urgente' },
+    { code: 'decisor', label: '🏆 Decisor / C-level' },
+  ];
+
   const el = (id) => document.getElementById(id);
   const screens = {
     loading: el('screen-loading'),
@@ -26,6 +36,8 @@
     rafId: null,
     lastDecoded: null,
     cooldownUntil: 0,
+    pendingCapturaId: null,
+    selectedTags: [],
   };
 
   function showScreen(name) {
@@ -214,16 +226,21 @@
     ev.preventDefault();
     const name = el('input-name').value.trim();
     const company = el('input-company').value.trim();
+    const email = el('input-email').value.trim();
     const errEl = el('profile-error');
     errEl.textContent = '';
-    if (!name || !company) {
-      errEl.textContent = 'Preencha nome e empresa.';
+    if (!name || !company || !email) {
+      errEl.textContent = 'Preencha nome, empresa e email.';
+      return;
+    }
+    if (!email.includes('@')) {
+      errEl.textContent = 'Email invalido.';
       return;
     }
     const btn = el('btn-start-capturing');
     btn.disabled = true;
     try {
-      const resp = await apiPost('register.php', { own_qr_code: state.ownQr, name, company });
+      const resp = await apiPost('register.php', { own_qr_code: state.ownQr, name, company, email });
       state.sessionToken = resp.session_token;
       state.capturadorId = resp.id;
       state.name = resp.name;
@@ -311,6 +328,7 @@
       } else {
         flash('success', '✓');
         toast('Lead capturado com sucesso!');
+        openTagSheet(resp.id);
       }
       renderDashboard(resp.stats);
     } catch (e) {
@@ -319,9 +337,66 @@
     }
   }
 
+  // ---------- Tag sheet ----------
+  function renderTagChips() {
+    const wrap = el('tag-chips');
+    wrap.innerHTML = '';
+    TAGS.forEach((tag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tag-chip';
+      btn.textContent = tag.label;
+      btn.dataset.code = tag.code;
+      btn.addEventListener('click', () => {
+        const idx = state.selectedTags.indexOf(tag.code);
+        if (idx >= 0) {
+          state.selectedTags.splice(idx, 1);
+          btn.classList.remove('selected');
+        } else {
+          state.selectedTags.push(tag.code);
+          btn.classList.add('selected');
+        }
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function openTagSheet(capturaId) {
+    state.pendingCapturaId = capturaId;
+    state.selectedTags = [];
+    el('tag-notes').value = '';
+    renderTagChips();
+    el('tag-sheet').hidden = false;
+  }
+
+  function closeTagSheet() {
+    el('tag-sheet').hidden = true;
+    state.pendingCapturaId = null;
+    state.selectedTags = [];
+  }
+
+  async function saveTagSheet() {
+    if (!state.pendingCapturaId) { closeTagSheet(); return; }
+    const notes = el('tag-notes').value.trim();
+    const capturaId = state.pendingCapturaId;
+    const tags = state.selectedTags.slice();
+    closeTagSheet();
+    try {
+      await apiPost('tag.php', {
+        session_token: state.sessionToken,
+        captura_id: capturaId,
+        tags,
+        notes,
+      });
+    } catch (e) {
+      toast('Nao foi possivel salvar a marcacao.');
+    }
+  }
+
   function closeCapture() {
     stopCamera();
     hideLastCapture();
+    closeTagSheet();
     showScreen('dashboard');
   }
 
@@ -361,6 +436,8 @@
     el('btn-open-scan').addEventListener('click', beginCapture);
     el('btn-close-scan').addEventListener('click', closeCapture);
     el('btn-reset-profile').addEventListener('click', resetProfile);
+    el('btn-tag-save').addEventListener('click', saveTagSheet);
+    el('btn-tag-skip').addEventListener('click', closeTagSheet);
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         stopCamera();

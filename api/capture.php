@@ -37,9 +37,11 @@ $ins = $pdo->prepare(
      VALUES (?, ?, ?, CURDATE(), NOW())'
 );
 $ins->execute([$capturadorId, $qr, $isDuplicate ? 1 : 0]);
+$capturaId = (int)$pdo->lastInsertId();
 
 json_out([
     'ok' => true,
+    'id' => $capturaId,
     'is_duplicate' => $isDuplicate,
     'stats' => get_stats($pdo, $capturadorId),
 ]);
