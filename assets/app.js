@@ -19,6 +19,7 @@
   const screens = {
     loading: el('screen-loading'),
     onboardScan: el('screen-onboard-scan'),
+    onboardConfirm: el('screen-onboard-confirm'),
     onboardProfile: el('screen-onboard-profile'),
     dashboard: el('screen-dashboard'),
     scan: el('screen-scan'),
@@ -215,7 +216,7 @@
         stopCamera();
         state.ownQr = value;
         el('onboard-qr-chip').textContent = value;
-        showScreen('onboardProfile');
+        showScreen('onboardConfirm');
       });
     } catch (e) {
       el('onboard-error').textContent = 'Nao foi possivel acessar a camera. Verifique as permissoes do navegador.';
@@ -433,7 +434,8 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     el('btn-start-capturing').closest('form').addEventListener('submit', submitProfile);
-    el('btn-rescan-own').addEventListener('click', beginOnboardScan);
+    el('btn-confirm-own-yes').addEventListener('click', () => showScreen('onboardProfile'));
+    el('btn-confirm-own-no').addEventListener('click', beginOnboardScan);
     el('btn-open-scan').addEventListener('click', beginCapture);
     el('btn-close-scan').addEventListener('click', closeCapture);
     el('btn-reset-profile').addEventListener('click', resetProfile);

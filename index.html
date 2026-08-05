@@ -36,15 +36,25 @@
     </div>
   </section>
 
+  <section id="screen-onboard-confirm" class="screen" hidden>
+    <div class="brand">
+      <img src="assets/logo.png" alt="13º Fórum do Biogás" class="logo" onerror="this.style.display='none'">
+    </div>
+    <div class="center-col">
+      <p class="instruction">Confira: este é o crachá que você acabou de escanear.</p>
+      <span class="qr-chip" id="onboard-qr-chip"></span>
+      <p class="instruction"><strong>Este crachá é seu?</strong></p>
+      <button id="btn-confirm-own-yes" type="button" class="btn">Sim, é o meu crachá</button>
+      <button id="btn-confirm-own-no" type="button" class="btn secondary">Não, escanear de novo</button>
+    </div>
+  </section>
+
   <section id="screen-onboard-profile" class="screen" hidden>
     <div class="brand">
       <img src="assets/logo.png" alt="13º Fórum do Biogás" class="logo" onerror="this.style.display='none'">
       <p>Coletor de Leads · Passo 2 de 2 — seus dados</p>
     </div>
     <div class="center-col">
-      <p class="instruction">Você escaneou o seu crachá:</p>
-      <span class="qr-chip" id="onboard-qr-chip"></span>
-      <button id="btn-rescan-own" type="button" class="rescan-link">Não é o meu crachá, escanear de novo</button>
       <form id="profile-form" style="width:100%; max-width:360px;">
         <div class="field">
           <label for="input-name">Seu nome</label>
