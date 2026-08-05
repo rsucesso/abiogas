@@ -333,7 +333,6 @@
         toast('Lead ja tinha sido capturado por voce.');
       } else {
         flash('success', '✓');
-        toast('Lead capturado com sucesso!');
         openTagSheet(resp.id);
       }
       renderDashboard(resp.stats);
